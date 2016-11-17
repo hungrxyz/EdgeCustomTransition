@@ -36,35 +36,31 @@ class AnimationController: NSObject, UIViewControllerAnimatedTransitioning {
 		let fromView = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from)!.view
 		let toView = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to)!.view
 		
-		let detailView = self.isPresenting ? toView : fromView
+		toView?.frame = originFrame
+		toView!.transform = CGAffineTransform(translationX: -toView!.bounds.width / 2, y: 0)
+		
+		toView!.layoutIfNeeded()
+		fromView!.layoutIfNeeded()
+		
 		
 		if self.isPresenting {
-			containerView.addSubview(toView!)
-		} else {
 			containerView.insertSubview(toView!, belowSubview: fromView!)
+		} else {
+			containerView.addSubview(toView!)
 		}
 		
-		detailView?.frame.origin = self.isPresenting ? self.originFrame.origin : CGPoint(x: 0, y: 0)
-		detailView?.frame.size.width = self.isPresenting ? self.originFrame.size.width : containerView.bounds.width
-		detailView?.layoutIfNeeded()
-		
-		for view in (detailView?.subviews)! {
-			if !(view is UIImageView) {
-				view.alpha = isPresenting ? 0.0 : 1.0
-			}
-		}
-		
-		UIView.animate(withDuration: self.duration, animations: { () -> Void in
-			detailView?.frame = self.isPresenting ? containerView.bounds : self.originFrame
-			detailView?.layoutIfNeeded()
-			
-			for view in (detailView?.subviews)! {
-				if !(view is UIImageView) {
-					view.alpha = self.isPresenting ? 1.0 : 0.0
-				}
-			}
-		}) { (completed: Bool) -> Void in
+		UIView.animateKeyframes(withDuration: self.duration, delay: 0, options: .calculationModeCubic, animations: {
+			UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: self.duration / 2, animations: {
+				fromView!.transform = CGAffineTransform(translationX: fromView!.bounds.width / 2, y: 0)
+			})
+			UIView.addKeyframe(withRelativeStartTime: self.duration / 2, relativeDuration: self.duration / 2, animations: {
+				containerView.bringSubview(toFront: toView!)
+				containerView.layoutSubviews()
+				fromView!.transform = CGAffineTransform.identity
+				toView!.transform = CGAffineTransform.identity
+			})
+		}, completion: { _ in
 			transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
-		}
+		})
 	}
 }

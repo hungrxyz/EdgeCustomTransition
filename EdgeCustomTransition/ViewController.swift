@@ -18,12 +18,14 @@ class ViewController: UIViewController {
 	@IBAction func leftTapped(_ sender: Any) {
 		let vc = ViewController(nibName: String(describing: ViewController.self), bundle: nil)
 		vc.view.backgroundColor = .yellow
+		vc.transitioningDelegate = self
 		self.present(vc, animated: true, completion: nil)
 	}
 	
 	@IBAction func rightTapped(_ sender: Any) {
 		let vc = ViewController(nibName: String(describing: ViewController.self), bundle: nil)
 		vc.view.backgroundColor = .green
+		vc.transitioningDelegate = self
 		self.present(vc, animated: true, completion: nil)
 	}
 	
@@ -37,5 +39,15 @@ class ViewController: UIViewController {
 	}
 
 
+}
+
+extension ViewController: UIViewControllerTransitioningDelegate {
+	func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+		return AnimationController(withDuration: 1, forTransitionType: .dismissing, originFrame: UIScreen.main.bounds)
+	}
+	
+	func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+		return AnimationController(withDuration: 1, forTransitionType: .presenting, originFrame: UIScreen.main.bounds)
+	}
 }
 
